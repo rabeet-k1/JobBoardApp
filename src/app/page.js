@@ -41,6 +41,7 @@ export default function Home() {
   const { allJobPosts, allJobsLoading } = useSelector(
     (state) => state.JobPostsSlice
   );
+  const { userData } = useSelector((state) => state.AuthenticationSlice);
   const [page, setPage] = useState(1);
   const [searchVal, setSearchVal] = useState("");
   const debouncedValue = useDebounce(searchVal, 300);
@@ -65,7 +66,8 @@ export default function Home() {
   );
 
   const handleFavBtn = () => {
-    router.push("/favorites");
+    if (userData) router.push("/favorites");
+    else router.push("/login");
   };
 
   return (
@@ -135,7 +137,13 @@ export default function Home() {
               </TableHead>
               <TableBody>
                 {filterJob?.map((row) => (
-                  <MyTableRows key={row.id} row={row} />
+                  <MyTableRows
+                    key={row.id}
+                    row={row}
+                    handleOpenModal={() =>
+                      jobModalRef.current.isOpenDialog(row)
+                    }
+                  />
                 ))}
               </TableBody>
             </Table>

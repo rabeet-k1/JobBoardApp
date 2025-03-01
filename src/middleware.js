@@ -1,6 +1,9 @@
-import { authConfig } from "./auth.config";
+import { NextResponse } from "next/server";
 
-export default NextAuth(authConfig).auth;
+export function middleware(request) {
+  console.log("check if calling this route");
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/favorites"],

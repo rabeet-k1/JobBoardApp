@@ -13,11 +13,11 @@ import {
 } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const SignUp = () => {
+  const { userData } = useSelector((state) => state.AuthenticationSlice);
   const router = useRouter();
   const dispatch = useDispatch();
   const auth = getAuth(app);
@@ -26,6 +26,10 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (userData) router.push("/");
+  }, [userData]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -53,13 +57,10 @@ const SignUp = () => {
         .then((userCredential) => {
           const user = userCredential.user;
           let firebaseUser = auth.currentUser;
-          signIn("credentials", {
-            user: JSON.stringify(user),
-            redirect: false,
-          });
           updateProfile(firebaseUser, {
             displayName: inputValues.fullName,
           });
+          openSnackAlert("User registered successfully", "success");
           dispatch(
             setUserData({
               email: user.email,

@@ -31,8 +31,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const MyTableRows = ({ row }) => {
+const MyTableRows = ({ row, handleOpenModal }) => {
   const { favoriteJobs } = useSelector((state) => state.FavoriteJobsSlice);
+  const { userData } = useSelector((state) => state.AuthenticationSlice);
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -41,15 +42,17 @@ const MyTableRows = ({ row }) => {
   );
 
   const handleMarkFav = (typeee) => {
-    if (typeee == "favorite") {
-      dispatch(setFavoriteJobs([row, ...favoriteJobs]));
-      openSnackAlert("Job marked as favorite", "success");
-    } else {
-      let tempArr = [...favoriteJobs];
-      tempArr.splice(isExistFavItem, 1);
-      dispatch(setFavoriteJobs(tempArr));
-      openSnackAlert("Job removed from favorites", "success");
-    }
+    if (userData) {
+      if (typeee == "favorite") {
+        dispatch(setFavoriteJobs([row, ...favoriteJobs]));
+        openSnackAlert("Job marked as favorite", "success");
+      } else {
+        let tempArr = [...favoriteJobs];
+        tempArr.splice(isExistFavItem, 1);
+        dispatch(setFavoriteJobs(tempArr));
+        openSnackAlert("Job removed from favorites", "success");
+      }
+    } else router.push("/login");
   };
 
   return (
@@ -88,7 +91,7 @@ const MyTableRows = ({ row }) => {
             boxShadow: "none",
             width: { xs: "100%", sm: "auto" },
           }}
-          handleClickBtn={() => jobModalRef.current.isOpenDialog(row)}
+          handleClickBtn={handleOpenModal}
         />
       </StyledTableCell>
     </StyledTableRow>

@@ -11,11 +11,20 @@ const persistConfig = {
   storage,
 };
 
+const authPersistConfig = {
+  key: "auth",
+  storage,
+};
+
 const persistedReducer = persistReducer(persistConfig, FavoriteJobsSlice);
+const persisteAuthdReducer = persistReducer(
+  authPersistConfig,
+  AuthenticationSlice
+);
 
 const rootReducer = combineReducers({
-  AuthenticationSlice,
   JobPostsSlice,
+  AuthenticationSlice: persisteAuthdReducer,
   FavoriteJobsSlice: persistedReducer,
 });
 

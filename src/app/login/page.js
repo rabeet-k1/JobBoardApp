@@ -7,13 +7,13 @@ import { checkValidEmail, openSnackAlert } from "@/helper";
 import { setUserData } from "@/redux/slices/Authentication";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Login = () => {
+  const { userData } = useSelector((state) => state.AuthenticationSlice);
   const router = useRouter();
   const dispatch = useDispatch();
   const auth = getAuth(app);
@@ -21,6 +21,10 @@ const Login = () => {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (userData) router.push("/");
+  }, [userData]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -41,10 +45,6 @@ const Login = () => {
       signInWithEmailAndPassword(auth, inputValues.email, inputValues.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          signIn("credentials", {
-            user: JSON.stringify(user),
-            redirect: false,
-          });
           dispatch(
             setUserData({
               email: user.email,
@@ -61,6 +61,8 @@ const Login = () => {
         });
     }
   };
+
+  if (userData) return router.push("/");
 
   return (
     <Box
