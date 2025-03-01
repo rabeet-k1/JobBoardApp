@@ -1,14 +1,19 @@
 "use client";
 import FavoriteCards from "@/components/favoriteCards";
+import useFavorites from "@/hooks/useFavorites";
 import { Box, Grid, Typography } from "@mui/material";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function Favorites() {
-  const { favoriteJobs } = useSelector((state) => state.FavoriteJobsSlice);
+  const { fetchFav, favoriteJobs } = useFavorites();
+
+  useEffect(() => {
+    fetchFav();
+  }, []);
 
   return (
-    <Box sx={{ background: "#fff", minHeight: "100vh" }}>
+    <Box sx={{ background: "#fff", minHeight: "100vh", padding: "30px 20px" }}>
       <Typography variant={"body1"} fontSize={14} color="black" mb={2}>
         Back to{" "}
         <Link

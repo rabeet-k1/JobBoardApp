@@ -1,21 +1,31 @@
+import { firestore } from "@/firebase";
 import { openSnackAlert } from "@/helper";
-import { setFavoriteJobs } from "@/redux/slices/FavoriteJobs";
-import { Box, Typography } from "@mui/material";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import useFavorites from "@/hooks/useFavorites";
+import { deleteDoc, doc } from "@firebase/firestore";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { Box, Typography } from "@mui/material";
+import { useSelector } from "react-redux";
 
 const FavoriteCards = ({ favItem, index }) => {
-  const dispatch = useDispatch();
-  const { favoriteJobs } = useSelector((state) => state.FavoriteJobsSlice);
+  const { fetchFav } = useFavorites();
+  const { userData } = useSelector((state) => state.AuthenticationSlice);
 
-  const handleRemoveItem = () => {
-    let tempArr = [...favoriteJobs];
-    tempArr.splice(index, 1);
-    dispatch(setFavoriteJobs(tempArr));
-    openSnackAlert("Job removed from favorites", "success");
+  const handleRemoveItem = async () => {
+    try {
+      const itemsRef = doc(
+        firestore,
+        "favorites",
+        userData.id,
+        "items",
+        favItem.id
+      );
+      await deleteDoc(itemsRef);
+      fetchFav();
+      openSnackAlert("Job removed from favorites", "success");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
-  console.log(favItem, "favItemfavItemfavItemfavItem");
 
   return (
     <Box

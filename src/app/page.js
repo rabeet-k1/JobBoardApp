@@ -28,6 +28,7 @@ import GlobalButton from "@/components/globalButton";
 import { primaryColor } from "@/constants";
 import { useRouter } from "next/navigation";
 import Header from "@/components/header";
+import useFavorites from "@/hooks/useFavorites";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -40,6 +41,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 export default function Home() {
+  const { fetchFav } = useFavorites();
   const router = useRouter();
   const dispatch = useDispatch();
   const { allJobPosts, allJobsLoading, totalRecords, recordsLimit } =
@@ -51,6 +53,7 @@ export default function Home() {
 
   useEffect(() => {
     if (allJobPosts?.length == 0) dispatch(fetchJobs(recordsLimit));
+    fetchFav();
   }, []);
 
   const handleLoadMore = () => {

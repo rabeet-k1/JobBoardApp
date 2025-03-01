@@ -10,6 +10,9 @@ import { memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { openSnackAlert } from "@/helper";
+import { collection, addDoc, doc, deleteDoc } from "firebase/firestore";
+import { firestore } from "@/firebase";
+import useFavorites from "@/hooks/useFavorites";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -32,25 +35,51 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const MyTableRows = ({ row, handleOpenModal }) => {
-  const { favoriteJobs } = useSelector((state) => state.FavoriteJobsSlice);
+  const { fetchFav, favoriteJobs } = useFavorites();
   const { userData } = useSelector((state) => state.AuthenticationSlice);
   const router = useRouter();
   const dispatch = useDispatch();
 
-  let isExistFavItem = favoriteJobs?.findIndex(
-    (itemmmmmm) => itemmmmmm.id == row.id
+  let isExistFavItem = favoriteJobs?.find(
+    (itemmmmmm) => itemmmmmm.jobId == row.id
   );
 
-  const handleMarkFav = (typeee) => {
+  const handleMarkFav = async (typeee) => {
     if (userData) {
       if (typeee == "favorite") {
-        dispatch(setFavoriteJobs([row, ...favoriteJobs]));
-        openSnackAlert("Job marked as favorite", "success");
+        try {
+          const itemsRef = collection(
+            firestore,
+            "favorites",
+            userData.id,
+            "items"
+          );
+          const docRef = await addDoc(itemsRef, {
+            userId: userData.id,
+            jobId: row.id,
+          });
+          fetchFav();
+
+          openSnackAlert("Job marked as favorite", "success");
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
+        // dispatch(setFavoriteJobs([row, ...favoriteJobs]));
       } else {
-        let tempArr = [...favoriteJobs];
-        tempArr.splice(isExistFavItem, 1);
-        dispatch(setFavoriteJobs(tempArr));
-        openSnackAlert("Job removed from favorites", "success");
+        try {
+          const itemsRef = doc(
+            firestore,
+            "favorites",
+            userData.id,
+            "items",
+            isExistFavItem.id
+          );
+          await deleteDoc(itemsRef);
+          fetchFav();
+          openSnackAlert("Job removed from favorites", "success");
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
       }
     } else router.push("/login");
   };
@@ -67,7 +96,7 @@ const MyTableRows = ({ row, handleOpenModal }) => {
         {row.job_type}
       </StyledTableCell>
       <StyledTableCell component="th" scope="row">
-        {isExistFavItem !== -1 ? (
+        {isExistFavItem !== undefined ? (
           <FavoriteIcon
             sx={{ cursor: "pointer", color: "red" }}
             onClick={() => handleMarkFav("removeFavorite")}
