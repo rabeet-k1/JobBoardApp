@@ -15,6 +15,7 @@ const FavoriteCards = ({ favItem, index }) => {
     dispatch(setFavoriteJobs(tempArr));
     openSnackAlert("Job removed from favorites", "success");
   };
+  console.log(favItem, "favItemfavItemfavItemfavItem");
 
   return (
     <Box
@@ -40,7 +41,7 @@ const FavoriteCards = ({ favItem, index }) => {
       <Typography>Name: {favItem?.title}</Typography>
       <Typography>Company Name: {favItem?.company_name}</Typography>
       <Typography>Job Type: {favItem?.job_type}</Typography>
-      <Typography>Salary: {favItem?.salary}</Typography>
+      <Typography>Salary: {favItem?.salary ? favItem?.salary : "-"}</Typography>
     </Box>
   );
 };
