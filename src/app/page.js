@@ -1,7 +1,11 @@
 "use client";
 import TextInput from "@/components/textInput";
 import useDebounce from "@/hooks/useDebounce";
-import { fetchJobs } from "@/redux/slices/JobPosts";
+import {
+  fetchJobs,
+  setCurrentPage,
+  setRecordsLimit,
+} from "@/redux/slices/JobPosts";
 import {
   Box,
   Paper,
@@ -38,22 +42,20 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 export default function Home() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { allJobPosts, allJobsLoading } = useSelector(
-    (state) => state.JobPostsSlice
-  );
+  const { allJobPosts, allJobsLoading, totalRecords, recordsLimit } =
+    useSelector((state) => state.JobPostsSlice);
   const { userData } = useSelector((state) => state.AuthenticationSlice);
-  const [page, setPage] = useState(1);
   const [searchVal, setSearchVal] = useState("");
   const debouncedValue = useDebounce(searchVal, 300);
   const jobModalRef = useRef();
 
   useEffect(() => {
-    if (allJobPosts?.length == 0) dispatch(fetchJobs());
+    if (allJobPosts?.length == 0) dispatch(fetchJobs(recordsLimit));
   }, []);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-    // if (paginatedItem) if (callApi) callApi(newPage);
+  const handleLoadMore = () => {
+    dispatch(setRecordsLimit(recordsLimit + 20));
+    dispatch(fetchJobs(recordsLimit + 20));
   };
 
   const filterJob = allJobPosts?.filter(
@@ -155,16 +157,27 @@ export default function Home() {
               </Box>
             )}
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[]}
-            component="div"
-            count={0} //total records
-            page={page}
-            rowsPerPage={20}
-            onPageChange={handleChangePage}
-            sx={{ backgroundColor: "#fff" }}
-            size="small"
-          />
+
+          {!allJobsLoading && (
+            <div
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                textAlign: "center",
+                display: recordsLimit !== totalRecords ? "block" : "none",
+              }}
+            >
+              <GlobalButton
+                title="View More"
+                style={{
+                  padding: "8px 30px",
+                  background: primaryColor,
+                  textTransform: "capitalize",
+                }}
+                handleClickBtn={handleLoadMore}
+              />
+            </div>
+          )}
         </Box>
         <JobDetailModal ref={jobModalRef} />
       </Box>

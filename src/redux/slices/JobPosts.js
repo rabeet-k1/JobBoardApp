@@ -1,23 +1,33 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-export const fetchJobs = createAsyncThunk("fetchJobs", async (params) => {
+export const fetchJobs = createAsyncThunk("fetchJobs", async (limittt) => {
   const response = await fetch(
-    `https://remotive.com/api/remote-jobs?limit=100`
+    `https://remotive.com/api/remote-jobs?limit=${limittt}`
   );
   const finalResult = await response.json();
-  return finalResult.jobs;
+  let counttt = finalResult["total-job-count"];
+  return {
+    jobArray: finalResult.jobs,
+    totalCount: counttt,
+  };
 });
 
 const initialState = {
   allJobPosts: [],
   allJobsLoading: false,
+  recordsLimit: 20,
+  totalRecords: 0,
   error: null,
 };
 
 const jobPostsSlice = createSlice({
   name: "allJobs",
   initialState,
-  reducers: {},
+  reducers: {
+    setRecordsLimit: (state, action) => {
+      state.recordsLimit = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchJobs.pending, (state, action) => {
       state.allJobsLoading = true;
@@ -25,7 +35,8 @@ const jobPostsSlice = createSlice({
     });
     builder.addCase(fetchJobs.fulfilled, (state, action) => {
       state.allJobsLoading = false;
-      state.allJobPosts = action.payload;
+      state.allJobPosts = action.payload.jobArray;
+      state.totalRecords = action.payload.totalCount;
     });
 
     builder.addCase(fetchJobs.rejected, (state, action) => {
@@ -34,5 +45,7 @@ const jobPostsSlice = createSlice({
     });
   },
 });
+
+export const { setRecordsLimit } = jobPostsSlice.actions;
 
 export default jobPostsSlice.reducer;
