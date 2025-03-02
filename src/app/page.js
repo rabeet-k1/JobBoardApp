@@ -173,6 +173,8 @@ export default function Home() {
                 width: "100%",
                 textAlign: "center",
                 display: recordsLimit < totalRecords ? "block" : "none",
+                position: "fixed",
+                bottom: "10px",
               }}
             >
               <GlobalButton
