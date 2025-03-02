@@ -1,11 +1,12 @@
 "use client";
+import GlobalButton from "@/components/globalButton";
+import Header from "@/components/header";
+import JobDetailModal from "@/components/jobDetailModal";
+import MyTableRows from "@/components/myTableRows";
 import TextInput from "@/components/textInput";
+import { primaryColor } from "@/constants";
 import useDebounce from "@/hooks/useDebounce";
-import {
-  fetchJobs,
-  setCurrentPage,
-  setRecordsLimit,
-} from "@/redux/slices/JobPosts";
+import { fetchJobs, setRecordsLimit } from "@/redux/slices/JobPosts";
 import {
   Box,
   Paper,
@@ -14,20 +15,14 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import JobDetailModal from "@/components/jobDetailModal";
-import MyTableRows from "@/components/myTableRows";
-import GlobalButton from "@/components/globalButton";
-import { primaryColor } from "@/constants";
 import { useRouter } from "next/navigation";
-import Header from "@/components/header";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -46,31 +41,61 @@ export default function Home() {
     useSelector((state) => state.JobPostsSlice);
   const { userData } = useSelector((state) => state.AuthenticationSlice);
   const [searchVal, setSearchVal] = useState("");
-  const debouncedValue = useDebounce(searchVal, 300);
+  const debouncedValue = useDebounce(searchVal, 500);
   const jobModalRef = useRef();
 
   useEffect(() => {
-    if (allJobPosts?.length == 0) dispatch(fetchJobs(recordsLimit));
-  }, []);
+    let payload = { limit: 20, searchVal: debouncedValue };
+    dispatch(setRecordsLimit(20));
+    dispatch(fetchJobs(payload));
+  }, [debouncedValue]);
 
   const handleLoadMore = () => {
+    let payload = { limit: recordsLimit + 20, searchVal: debouncedValue };
     dispatch(setRecordsLimit(recordsLimit + 20));
-    dispatch(fetchJobs(recordsLimit + 20));
+    dispatch(fetchJobs(payload));
   };
 
-  const filterJob = allJobPosts?.filter(
-    (itemmm) =>
-      itemmm.title.toLowerCase().includes(debouncedValue?.toLowerCase()) ||
-      itemmm.company_name
-        .toLowerCase()
-        .includes(debouncedValue?.toLowerCase()) ||
-      itemmm.job_type.toLowerCase().includes(debouncedValue?.toLowerCase())
-  );
+  // const filterJob = allJobPosts?.filter(
+  //   (itemmm) =>
+  //     itemmm.title.toLowerCase().includes(debouncedValue?.toLowerCase()) ||
+  //     itemmm.company_name
+  //       .toLowerCase()
+  //       .includes(debouncedValue?.toLowerCase()) ||
+  //     itemmm.job_type.toLowerCase().includes(debouncedValue?.toLowerCase())
+  // );
 
   const handleFavBtn = () => {
     if (userData) router.push("/favorites");
     else router.push("/login");
   };
+
+  const renderTable = useMemo(() => {
+    return (
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>Job Title</StyledTableCell>
+              <StyledTableCell>Company</StyledTableCell>
+              <StyledTableCell>Job Type</StyledTableCell>
+              <StyledTableCell>Mark Favorite</StyledTableCell>
+              <StyledTableCell>View Detail</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {allJobPosts?.map((row) => (
+              <MyTableRows
+                key={row.id}
+                row={row}
+                handleOpenModal={() => jobModalRef.current.isOpenDialog(row)}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  }, [allJobPosts]);
 
   return (
     <>
@@ -126,45 +151,28 @@ export default function Home() {
         </Box>
 
         <Box sx={{ background: "#fff" }}>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="customized table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>Job Title</StyledTableCell>
-                  <StyledTableCell>Company</StyledTableCell>
-                  <StyledTableCell>Job Type</StyledTableCell>
-                  <StyledTableCell>Mark Favorite</StyledTableCell>
-                  <StyledTableCell>View Detail</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filterJob?.map((row) => (
-                  <MyTableRows
-                    key={row.id}
-                    row={row}
-                    handleOpenModal={() =>
-                      jobModalRef.current.isOpenDialog(row)
-                    }
-                  />
-                ))}
-              </TableBody>
-            </Table>
-            {allJobsLoading && (
-              <Box sx={{ textAlign: "center", padding: "20px 0" }}>
-                <Typography sx={{ fontWeight: "700" }}>
-                  Fetching Data, Please wait!!!
-                </Typography>
-              </Box>
-            )}
-          </TableContainer>
-
+          {renderTable}
+          {allJobsLoading && (
+            <Box sx={{ textAlign: "center", padding: "20px 0" }}>
+              <Typography sx={{ fontWeight: "700", color: "black" }}>
+                Fetching Data, Please wait!!!
+              </Typography>
+            </Box>
+          )}
+          {allJobPosts.length == 0 && (
+            <Box sx={{ textAlign: "center", padding: "20px 0" }}>
+              <Typography sx={{ fontWeight: "700", color: "black" }}>
+                No Data Found!
+              </Typography>
+            </Box>
+          )}
           {!allJobsLoading && (
             <div
               style={{
                 marginTop: "10px",
                 width: "100%",
                 textAlign: "center",
-                display: recordsLimit !== totalRecords ? "block" : "none",
+                display: recordsLimit < totalRecords ? "block" : "none",
               }}
             >
               <GlobalButton

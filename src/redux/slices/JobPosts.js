@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-export const fetchJobs = createAsyncThunk("fetchJobs", async (limittt) => {
+export const fetchJobs = createAsyncThunk("fetchJobs", async (payload) => {
+  console.log(payload, "payloadpayloadpayloadpayload");
   const response = await fetch(
-    `https://remotive.com/api/remote-jobs?limit=${limittt}`
+    `https://remotive.com/api/remote-jobs?limit=${payload.limit}&search=${payload.searchVal}`
   );
   const finalResult = await response.json();
   let counttt = finalResult["total-job-count"];
