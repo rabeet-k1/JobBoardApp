@@ -72,7 +72,7 @@ export default function Home() {
 
   const renderTable = useMemo(() => {
     return (
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ marginBottom: "20px" }}>
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
             <TableRow>
@@ -159,7 +159,7 @@ export default function Home() {
               </Typography>
             </Box>
           )}
-          {allJobPosts.length == 0 && (
+          {!allJobsLoading && allJobPosts.length == 0 && (
             <Box sx={{ textAlign: "center", padding: "20px 0" }}>
               <Typography sx={{ fontWeight: "700", color: "black" }}>
                 No Data Found!
