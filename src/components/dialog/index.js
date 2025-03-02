@@ -2,7 +2,7 @@ import React from "react";
 import { Dialog } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const GlobalDialog = styled(Dialog)(({ theme, customWidth }) => ({
+const GlobalDialog = styled(Dialog)(({ theme, customwidth }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
     background: "#fff",
@@ -12,7 +12,7 @@ const GlobalDialog = styled(Dialog)(({ theme, customWidth }) => ({
     padding: theme.spacing(1),
   },
   "&.MuiDialog-root .MuiDialog-container .MuiPaper-root": {
-    width: customWidth ? customWidth : "550px",
+    width: customwidth ? customwidth : "550px",
     boxShadow:
       "0 0.46875rem 2.1875rem rgb(90 97 105 / 10%), 0 0.9375rem 1.40625rem rgb(90 97 105 / 10%), 0 0.25rem 0.53125rem rgb(90 97 105 / 12%), 0 0.125rem 0.1875rem rgb(90 97 105 / 10%)",
     padding: "20px 10px",
@@ -29,7 +29,7 @@ const BootstrapDialog = ({ children, handleClose, open, customwidth }) => {
       onClose={handleClose}
       open={open}
       scroll="body"
-      customWidth={customwidth}
+      customwidth={customwidth}
     >
       {children}
     </GlobalDialog>

@@ -15,7 +15,6 @@ const FavoriteCards = ({ favItem, index }) => {
     dispatch(setFavoriteJobs(tempArr));
     openSnackAlert("Job removed from favorites", "success");
   };
-  console.log(favItem, "favItemfavItemfavItemfavItem");
 
   return (
     <Box

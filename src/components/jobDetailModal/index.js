@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import DialogFooter from "../dialog/dialogFooter";
 import DialogHeader from "../dialog/dialogHeader";
 import BootstrapDialog from "../dialog";
+import GlobalButton from "../globalButton";
+import { primaryColor } from "@/constants";
+import Link from "next/link";
 
 let refData = null;
 
@@ -27,7 +30,19 @@ const JobDetailModal = React.forwardRef((props, ref) => {
           <Typography>Name: {refData?.title}</Typography>
           <Typography>Company Name: {refData?.company_name}</Typography>
           <Typography>Job Type: {refData?.job_type}</Typography>
-          <Typography>Salary: {refData?.salary}</Typography>
+          <Typography sx={{ marginBottom: "20px" }}>
+            Salary: {refData?.salary}
+          </Typography>
+          <Link href={refData?.url} target="_blank">
+            <GlobalButton
+              title="Apply Now"
+              style={{
+                padding: "8px 30px",
+                background: primaryColor,
+                textTransform: "capitalize",
+              }}
+            />
+          </Link>
           <Typography sx={{ marginTop: "20px", fontWeight: "600" }}>
             Job Description:
           </Typography>
